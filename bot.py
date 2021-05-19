@@ -1,82 +1,45 @@
 # bot.py
-import os, re, discord
-from discord.utils import find
+
+# D3OT - The Discord Dungeons & Dragons Organizational Tools Bot
+# Copyright (C) 2021  Marcel Blanck | mail@marcel-blanck.de
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import os
 from dotenv import load_dotenv
+from client.D3OTClient import D3OTClient
+from client.commands.EnrolmentCheck import EnrolmentCheck
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('GUILD_NAME')
-COMMAND = os.getenv('COMMAND')
+def printWelcomeMessage():
+    with open(os.path.join(os.path.dirname(__file__), 'data/welcome.txt'), mode='r') as welcome:
+        for line in welcome.readlines():
+            print(line, end='')
 
-class MGToolBotClient(discord.Client):
-    def __init__(self):
-        super(MGToolBotClient, self).__init__()
-        self.commandRegex = re.compile(r'/mg ([a-z]+).*')
-        self.messageUrlRegex = re.compile(r'/mg eval https://discord.com/channels/([0-9]+)/([0-9]+)/([0-9]+)')
+if __name__ == '__main__':
+    load_dotenv()
+    printWelcomeMessage()
 
+    debugMode = bool(os.getenv('DEBUG_MODE'))
 
-    async def on_ready(self):
-        guild = discord.utils.find(lambda g: g.name == GUILD, client.guilds)
-        print(
-            f'{client.user} is connected to the following guild:\n'
-            f'{guild.name}(id: {guild.id})')
+    client = D3OTClient(
+        os.getenv('COMMAND'), 
+        os.getenv('GUILD_NAME'), 
+        debugMode
+    )
 
+    client.setCommandExecutors({
+        'enrol': EnrolmentCheck(debugMode)
+    })
 
-    async def on_message(self, msg):
-        if not msg.content.startswith(COMMAND) or msg.author.bot:
-            return
-
-        print('Incomming message ' + msg.content)
-        commandMatch = re.search(self.commandRegex, msg.content)
-        if commandMatch != None:
-            command = commandMatch.group(1)
-            if command == 'eval':
-                await self.cmd_evaluateGameEnrolement(msg)
-            else:
-                await self.sendUsage(msg.author)
-
-
-    async def cmd_evaluateGameEnrolement(self, msg):
-        urlMatch = re.search(self.messageUrlRegex, msg.content)
-        if urlMatch != None:
-            guildID, channelID, checkMsgID = (urlMatch.group(1), urlMatch.group(2), urlMatch.group(3))
-            
-            guild = self.get_guild(int(guildID))
-            if guild == None:
-                await msg.author.send("Invalid guild id " + guildID)
-                return
-            
-            channel = find(lambda c: c.id == int(channelID), guild.channels)
-            if channel == None:
-                await msg.author.send("Invalid channel id " + channelID)
-                return
-            
-            try:
-                checkMsg = await channel.fetch_message(int(checkMsgID))
-            except discord.NotFound:
-                await msg.author.send('The message with ID {0} has not been found.'.format(checkMsgID))
-                return
-            except discord.Forbidden:
-                await msg.author.send('Access to message ID {0} is forbidden.'.format(checkMsgID))
-                return
-            except discord.HTTPException:
-                await msg.author.send('Retrieving the message failed.')
-                return
-            
-            result = ''
-            for reaction in checkMsg.reactions:
-                users = await reaction.users().flatten()
-                for user in users:
-                    result += "\n" + '{0} has reacted with {1.emoji}!'.format(user, reaction)
-            await msg.author.send(result)
-            await msg.author.send("Done!")
-        else:
-            await self.sendUsage(msg.author)
-
-
-    async def sendUsage(self, author):
-        await author.send("Usage...")
-
-client = MGToolBotClient()
-
-client.run(TOKEN)
+    client.run(os.getenv('DISCORD_TOKEN'))

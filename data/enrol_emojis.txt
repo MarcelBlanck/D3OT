@@ -1,0 +1,16 @@
+lvl1=1%EF%B8%8F%E2%83%A3
+lvl2=2%EF%B8%8F%E2%83%A3
+lvl3=3%EF%B8%8F%E2%83%A3
+lvl4=4%EF%B8%8F%E2%83%A3
+lvl5=5%EF%B8%8F%E2%83%A3
+lvl6=6%EF%B8%8F%E2%83%A3
+lvl7=7%EF%B8%8F%E2%83%A3
+lvl8=8%EF%B8%8F%E2%83%A3
+lvl9=9%EF%B8%8F%E2%83%A3
+lvl10=%F0%9F%94%9F
+beginnerTier=%F0%9F%87%A7
+lowTier=%F0%9F%87%B1
+highTier=%F0%9F%87%AD
+epicTier=%F0%9F%87%AA
+newbie=%E2%9A%94%EF%B8%8F
+longTimeNotPlayed=(\*%EF%B8%8F%E2%83%A3)|(%E2%AD%90)

@@ -1,7 +1,7 @@
-# MG Tool Bot
+# Discord D&D Orga Tools Bot - D3OT
 
 ## Setup
-1. Install python3 on your system
+1. Install python3 on your system, then
 2. ```pip3 install -U discord.py```
 3. ```pip install -U python-dotenv```
 
@@ -14,9 +14,8 @@ Create the environment file in the same folder as bot.py. The filename must be `
 # .env
 DISCORD_TOKEN=Your token
 GUILD_NAME=Your guild name
-COMMAND=/mg
+COMMAND=/d3ot
 ```
 
 ### Run the bot
 ```python3 bot.py ```
-
