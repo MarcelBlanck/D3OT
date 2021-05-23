@@ -23,11 +23,12 @@ from client.commands.EnrolmentCheck import EnrolmentCheck
 
 def printWelcomeMessage():
     with open(os.path.join(os.path.dirname(__file__), 'data/welcome.txt'), mode='r') as welcome:
-        for line in welcome.readlines():
+        for line in welcome:
             print(line, end='')
 
 if __name__ == '__main__':
     load_dotenv()
+
     printWelcomeMessage()
 
     debugMode = bool(os.getenv('DEBUG_MODE'))
