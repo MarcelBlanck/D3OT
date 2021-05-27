@@ -21,34 +21,34 @@ import re, discord
 class D3OTClient(discord.Client):
     def __init__(self, command, guild, debugMode):
         super(D3OTClient, self).__init__()
-        self.command = command
-        self.guild = guild
-        self.debugMode = debugMode
-        self.commandRegex = re.compile(self.command + ' ([a-z]+).*')
-        self.commandExecutors = {}
+        self._command = command
+        self._guild = guild
+        self._debugMode = debugMode
+        self._commandRegex = re.compile(self._command + ' ([a-z]+).*')
+        self._commandExecutors = {}
 
     def setCommandExecutors(self, commandExecutors):
-        self.commandExecutors = commandExecutors
-        for command in self.commandExecutors:
+        self._commandExecutors = commandExecutors
+        for command in self._commandExecutors:
             commandExecutors[command].setClient(self)
 
     async def on_ready(self):
-        guild = discord.utils.find(lambda g: g.name == self.guild, self.guilds)
+        guild = discord.utils.find(lambda g: g.name == self._guild, self.guilds)
         print(f'{self.user} is connected to: {guild.name}(id: {guild.id})')
 
     async def on_message(self, msg):
-        if not msg.content.startswith(self.command) or msg.author.bot:
+        if not msg.content.startswith(self._command) or msg.author.bot:
             return
 
-        if self.debugMode:
+        if self._debugMode:
             print('Incomming message {0}'.format(msg.content))
 
-        commandMatch = re.search(self.commandRegex, msg.content)
+        commandMatch = re.search(self._commandRegex, msg.content)
         commandExecuted = False
         if commandMatch != None:
             command = commandMatch.group(1)
-            if command in self.commandExecutors:
-                await self.commandExecutors[command].handleMessage(msg)
+            if command in self._commandExecutors:
+                await self._commandExecutors[command].handleMessage(msg)
                 commandExecuted = True
             else:
                 await self.sendUsage(msg.author, f'Unknown command "{command}".')
@@ -58,6 +58,6 @@ class D3OTClient(discord.Client):
 
     async def sendUsage(self, author, errorText):
         usageText = f'Error: {errorText}\n\nD3OT Bot Usage:\n'
-        for command in self.commandExecutors:
-            usageText += self.commandExecutors[command].usage()
+        for command in self._commandExecutors:
+            usageText += self._commandExecutors[command].usage()
         await author.send(usageText)

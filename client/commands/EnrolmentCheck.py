@@ -16,31 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import re
+from client.commands.D3OTCommand import D3OTCommand
 from discord.utils import find
 from discord import NotFound, Forbidden, HTTPException
 
-class EnrolmentCheck():
+class EnrolmentCheck(D3OTCommand):
     def __init__(self, debugMode):
-        self.client = None
-        self.debugMode = debugMode
-        self.messageUrlRegex = re.compile('.* enrol https://discord.com/channels/([0-9]+)/([0-9]+)/([0-9]+)') 
-
-    def setClient(self, client):
-        self.client = client
+        super().__init__(debugMode, '.* enrol https://discord.com/channels/([0-9]+)/([0-9]+)/([0-9]+)')
 
     async def handleMessage(self, msg):
-        if self.client == None:
-            raise 'Client not set on command handler.'
+        super().handleMessage(msg)
 
-        urlMatch = re.search(self.messageUrlRegex, msg.content)
-
-        if urlMatch == None:
-            await msg.author.send("Invalid url in " + msg.content)
-            
-        guildID, channelID, checkMsgID = (urlMatch.group(1), urlMatch.group(2), urlMatch.group(3))
+        guildID, channelID, checkMsgID = await super()._getCommandParameters(msg)
         
-        guild = self.client.get_guild(int(guildID))
+        guild = self._client.get_guild(int(guildID))
         if guild == None:
             await msg.author.send("Invalid guild id " + guildID)
             return
@@ -68,7 +57,7 @@ class EnrolmentCheck():
 
         for reaction in checkMsg.reactions:
             users = await reaction.users().flatten()
-            if self.debugMode:
+            if self._debugMode:
                 print('reaction: ', reaction)
                 print('users: ', users)
             for user in users:
